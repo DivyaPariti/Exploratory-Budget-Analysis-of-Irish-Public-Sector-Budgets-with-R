@@ -1,0 +1,402 @@
+# Part 1 : Analysis
+
+#### Data Analysis
+
+#This task involves finding a data set of interest to you, that contains a mix of categorical (factors) and numerical variables. 
+#As a guideline, the data set would typically have a minimum of two categorical variables and three numerical variables. 
+#The analysis of the data should involve the use of graphical summaries, tables and numerical summaries of the data.
+
+#Citation : Ireland's Open Data Portal - `https://data.gov.ie/dataset/table-f-annual-budget-2021-sdcc/resource/acfe3b71-923f-4302-82cd-6fda3c4dcc85`
+
+##### a. Loading the libraries
+
+#Firstly, we will load all the libraries that will help in data analysis process of the data set.
+
+# Loading all the necessary packages
+library("tibble")
+library("dplyr")
+library("ggplot2")
+
+#Library Descriptions:
+  
+#1.  dplyr - R package that is used mainly for data manipulation
+#2.  tibble - R package that helps when working with tables
+#3.  ggplot2 - R package used mainly for data visualization
+
+#Next, we will load the data set that we choose from Ireland's open Data Portal. For this project I chose my dataset as `Table_F_-_Annual_Budget_2021`. Table F is the Expenditure and Income for the Budget Year and Estimated Outturn for the previous Year.
+
+#Data fields for Table F are as follows --
+
+#a.  Doc : Table Reference Heading : Indicates sections in the Table - Table F is comprised of two sections : Income and Expenditure.
+#b.  Heading = 1 for all Expenditure records;
+#c.  Heading = 2 for all Income records.
+#d.  Ref : Division Reference
+#e.  Ref_Desc : Division Description
+#f.  Ref1 : Service Reference for all Expenditure records (i.e. Heading = 1) or Income Type for all Income records (i.e. Heading = 2)
+#g.  Ref1_Desc : Service Description for all Expenditure records (i.e. Heading = 1) or Income Type for all Income records (i.e. Heading = 2)
+#h.  Ref2 : Sub-Service Reference for all Expenditure records (i.e. Heading = 1) or Income Source for all Income records (i.e. Heading = 2)
+#i.  Ref2_Desc : Sub-Service Description for all Expenditure records (i.e. Heading = 1) or Income Source for all Income records (i.e. Heading = 2)
+#j.  Adop : Amount Adopted by Council for Budget Year
+#k.  EstCE : Amount Estimated by Chief Executive for Budget Year
+#l.  PY_Adop : Amount Adopted by Council for previous Financial Year
+#m.  PY_Outturn : Amount Estimated Outturn for previous Financial Year
+#n.  client-name
+#o.  year_curr : current year
+#p.  Objectid: object id
+
+##### b. Loading the dataset
+
+#loading the data set 
+
+url = "https://data-sdublincoco.opendata.arcgis.com/datasets/sdublincoco::table-f-annual-budget-2021-sdcc.csv?where=1=1"
+
+df = read.csv(url)# it contains 381 observations with 17 variables
+# df = read.csv("Table_F_-_Annual_Budget_2021.csv")# it contains 381 observations with 17 variables
+
+
+#One of the common practices to print the first few rows of the dataset. 
+#This is done to check first rows in the dataset which also gives quick insight into the rows inside the dataset to the user.
+
+head(df)
+
+#We can see first 6 rows and 17 columns of the dataset that we loaded. 
+#As we can interpret that there is a column `userid` that is irrelevant to the dataset.
+# We will omit that column. Removing this column doesn't affect any of the components/variables inside the dataset.
+
+#This can be done using dplyr and select() function the library offers. 
+#`select()` function is used to drop/omit columns from the dataset.
+
+dataset_df = select(df, -userid)
+# we can see that the column is deleted and variables are changed from 17 to 16
+
+
+#Now let us again print the columns of the dataset and check whether the changes are applied.
+
+names(dataset_df)
+
+#Column `userid` is successfully deleted from the table and we will use this dataset for the further data analysis.
+#Next, we will print more information about the dataset and its structure
+
+##### c. Extracting information on the dataset
+
+# printing more information about dataset
+# Finding the size of the data set
+# printing the number of rows and columns in our data frame
+size = dim(dataset_df)
+# Printing the number of rows
+print(paste("The number of rows in the dataset are", size[1]))
+# Printing the number of columns
+print(paste("The number of colummns in the dataset are", size[2]))
+
+#Similarly, we will print its structure.
+
+# Displaying the structure of the data set
+str(dataset_df, width = 84, strict.width = "cut")
+
+#Description of the functions we used to draw information about datasets :
+#1.  `dim()` : function sets the dimensions of objects in the given data frame. Alternatively, dim() function can output the number of rows and columns inside the dataframe.
+#2.  `str()` : displays the structures of objects or the summary of the output produced.
+
+#Interpretation of structure of dataset:
+#The above Expenditure and Income for the Budget Year and Estimated Outturn for the previous Year dataset captures both financial and descriptive data.
+# It consists of 381 observations (rows) and 16 variables (columns) out of which we have 9 categorical variables and 7 numerical variables(clearly visible in the datatype printed in the structure summary)
+
+##### d. Converting into tibble
+
+#Alternatively, we can also save our data in the form of a `tibble` that works well with `dpylr` package used for data manipulation tasks. 
+#Tibble is used to print only few rows and columns making it easier to read the outputs by the user.
+
+dataset_df = as_tibble(dataset_df)
+head(dataset_df)
+
+##### e. Renaming column names
+#Now we will rename the column names into something meaningful for the user to easily understand(user-friendly). 
+#In R, we can do this using `rename()` function. rename() will result in a dataframe with specified column names.
+dataset_df = rename(dataset_df,
+                    Records = heading,
+                    Division_Reference = ref,
+                    Division_Desc = ref_desc,
+                    Service_Ref = ref1,
+                    Service_Desc = ref1_desc,
+                    SubService_Ref = ref2,
+                    SubService_Desc = ref2_desc,
+                    BY_Adop = adop, #BY represents Budget year
+                    BY_EstCE = estce,
+                    FY_Adop = adop_py,#FY represents Financial Year
+                    FY_Outturn = outt,
+                    Current_year = year_curr
+)
+
+head(dataset_df)
+
+
+#We can see that the columns now have a more meaningful name that is easier to interpret by anyone.
+
+
+#### Data Manipulation
+
+##### a. Checking for null values
+
+#From all the summaries above we can see that there are a few columns in the dataset that contain 0s. 
+#Let's find out which rows contain 0 values and print out the column names. 
+#This can be achieved using `colSums()` function in R, that gives us the sum of all values in a column.
+
+# Check for 0 values in each column
+zval_col = colSums(dataset_df == 0) > 0
+print(zval_col)
+# printing those specific column names
+cat("\n", "Columns that contain 0s are ", paste(names(zval_col)[zval_col], collapse = ", "), "\n")
+
+
+
+
+#Additionally, We can replace the 0 values with mean/column average. This can be done using `mean()` function.
+# Firstly, let's calculate the mean of non-zero values inside the column
+# and then replace the zero values with the mean
+# Initially performing this logic operation on `BY_Adop` column
+col_mean = mean(dataset_df$BY_Adop[dataset_df$BY_Adop != 0], na.rm = TRUE)
+dataset_df$BY_Adop <- ifelse(dataset_df$BY_Adop == 0, col_mean, dataset_df$BY_Adop)
+
+# We will perform the same operation/logic to substitute the 0 values with the respective
+# column mean in all the other remaining columns
+col_mean_1 = mean(dataset_df$BY_EstCE[dataset_df$BY_EstCE != 0], na.rm = TRUE)
+dataset_df$BY_EstCE <- ifelse(dataset_df$BY_EstCE == 0, col_mean_1, dataset_df$BY_EstCE)
+
+col_mean_2 = mean(dataset_df$FY_Adop[dataset_df$FY_Adop != 0], na.rm = TRUE)
+dataset_df$FY_Adop <- ifelse(dataset_df$FY_Adop == 0, col_mean_2, dataset_df$FY_Adop)
+
+col_mean_3 = mean(dataset_df$FY_Outturn[dataset_df$FY_Outturn != 0], na.rm = TRUE)
+dataset_df$FY_Outturn <- ifelse(dataset_df$FY_Outturn == 0, col_mean_3, dataset_df$FY_Outturn)
+
+head(dataset_df)
+
+#Interpretation of the table:
+
+#We can interpret from the output that the 0 values in the above 4 columns have been replaced with their corresponding mean of columns.
+
+##### b. Creating ordered factors
+
+#Next we will check for ordered factors in the dataset. As we have categorical values in our dataset we can create a special factor that provides meaning to that variable. Here we will represent the column `Division_Reference` as ordered factor
+
+# Extracting the column from the dataset
+dataset_df$Division_Reference = factor(dataset_df$Division_Reference, ordered = TRUE) 
+# `ordered = TRUE` condition is used to get the ordered factor of the Division Reference variable.
+# Printing the levels of the output and checking again if the output is ordered
+cat("Levels of Division Reference :", levels(dataset_df$Division_Reference), "\n")
+cat("Checking if Division Reference in ordered factors - (Y/N) :", is.ordered(dataset_df$Division_Reference), "\n")
+
+#### Data Exploration
+
+##### a. Numerical Summaries
+
+#install.packages("psych")
+library(psych)
+library(corrplot)
+library(ggplot2)
+
+# Select relevant numeric columns for descriptive statistics
+numeric_columns = dataset_df[, c("BY_Adop", "BY_EstCE", "FY_Adop", "FY_Outturn")]
+
+# Descriptive statistics table
+desc_stats_table = describe(numeric_columns)
+
+# Print the table
+print("Descriptive Statistics Table:")
+print(desc_stats_table)
+
+
+#Interpretation:
+  
+#  The above table represents the descriptive statistics of four variables `BY_Adop`, `BY_EstCE`, `FY_Adop`, `FY_Outturn`. It contains the descriptions like mean, standard deviation, minimum value, maximum value, etc., The mean is the average value of the variable. The mean for BY_Adop is 591,481.5, for BY_EstCE is 588,942.9, for FY_Adop is 587,759.7, and for FY_Outturn is 586,883.2.
+
+#-   The standard deviation is a measure of how spread out the values of the variable are. The `standard deviation` for BY_Adop is 4,133,431, for BY_EstCE is 4,133,432, for FY_Adop is 3,768,538, and for FY_Outturn is 6,240,962.
+
+#-   The median is the middle value of the variable when the values are arranged in ascending order. The `median` for BY_Adop is 591,481.5, for BY_EstCE is 588,942.9, for FY_Adop is 587,759.7, and for FY_Outturn is 586,883.2.
+
+#-   The MAD is a measure of how spread out the values of the variable are around the median. The `MAD values` for BY_Adop is 422,217.0, for BY_EstCE is 428,238.5, for FY_Adop is 436,269.4, and for FY_Outturn is 425,777.8.
+
+#-   The `minimum values` for BY_Adop is -54,715,400, for BY_EstCE is -54,715,400, for FY_Adop is -47,584,800, and for FY_Outturn is -57,971,600.
+
+#-   The `maximum values` for BY_Adop is 21,378,800, for BY_EstCE is 21,378,800, for FY_Adop is 20,600,000, and for FY_Outturn is 67,500,000.
+
+#The above summary also tells that the variables of the dataset are highly dependent on each other
+
+##### b. Graphical Summaries
+
+#1.  Scatterplot:
+  
+#  Let's create a scatter plot between `BY_Adop` and `BY_Estce` where BY_Adop is Amount Adopted by Council for Budget Year and is Amount Estimated by Chief Executive for Budget Year
+
+
+# Scatter plot for BY_Adop vs. BY_EstCE
+ggplot(data = dataset_df, aes(x = BY_Adop, y = BY_EstCE, color = factor(Division_Desc))) +
+  geom_point() +
+  labs(title = "BY_Adop vs. BY_EstCE",
+       x = "BY_Adop",
+       y = "BY_EstCE") +
+  theme_gray()
+
+#Interpretation: The above graph is plotted between the amount adopted by the council for the budget year on the x-axis and the amount estimated by the chief executive for the budget year on the y-axis. There are few outliers in the data but the data is highly correlated. To see the correlation we will plot the correlation plot.
+
+#2.  Correlation Plot:
+  
+# Building the correlation plot between numeric columns. Correlation plot or matrix shows us how the variables are related to each other. In the correlation plot the diagonal is always 1. The coefficient coefficients always fall in the range \[-1,1\] where -1 indicates negative correlation, 1 indicates positive correlation and 0 indicates no correlation between the variables. The color scale on the right side represents the indicates the relationship based on the coefficient coolers.
+
+
+# Select relevant numeric columns for correlation
+selected_columns <- c("BY_Adop", "BY_EstCE", "FY_Adop", "FY_Outturn")
+correlations <- cor(dataset_df[selected_columns])
+
+# Building a correlation plot
+corrplot(correlations, method = "color", addCoef.col = "black", addCoefasPercent = TRUE, number.font = 10)
+
+#Interpretation: We can say that all the numerical variables are highly dependent on each other/highly correlated with each that suggests that there is a positive correlation. We can also say that as one variable increases other variable also tend to increase. For example The correlation between BY Adop and FY Adop is 0.91, which is a strong positive correlation. This means as one variable increases, the other variable also increases.
+
+
+ggplot(data = dataset_df, aes(x = Division_Reference, y = BY_EstCE, fill = factor(Division_Reference))) +
+  scale_y_continuous(limits = c(0, max(dataset_df$BY_EstCE))) +
+  geom_bar(stat = "identity", alpha = 0.9) +
+  labs(title = "Division Reference vs Amount Estimated by Chief Executive for Budget Year",
+       x = "Division Reference",
+       y = "Amount Estimate") +
+  theme_linedraw()
+
+#Interpretation: The above bar graph is plotted between Division Reference and Amount Estimated by Chief Executive for Budget Year. We can interpret that Division `A` and `D` have more estimated budget allotment by the Chief Executive in the year of 2021. Similarly, Divisions `B` and `F` have the least expected budget allotments for the year 2021 when compared to the all the divisions.
+
+ggplot(data = dataset_df, aes(x = Division_Reference, y = FY_Outturn, fill = factor(Division_Reference))) +
+  scale_y_continuous(limits = c(0, max(dataset_df$FY_Outturn))) +
+  geom_bar(stat = "identity", alpha = 0.6) +
+  labs(title = "Division Reference vs Amount Estimated Outturn for previous Financial Year",
+       x = "Division Reference",
+       y = "Estimated Outturn for financial year") + theme_classic()
+
+#Interpretation: We have plotted a bar graph between Division Reference vs Amount Estimated Outturn for previous Financial Year. From the graph we can conclude that Division `A` has the highest outturn in the previous year than any other divisions. Whereas, Divisions `C`, `G`, `H` has the least outturn.
+
+# Part 2 : R Package
+
+#This task involves finding an existing R package, that we didn't use in the course, and write a report demonstrating its use using Quarto. The report should demonstrate some of the key functionality of the package, but doesn't need to demonstrate all of the functions (only the main ones).
+
+#install.packages("ggvis")
+library(ggvis)
+library(dplyr)
+#??ggvis
+
+#Description of the package used : "ggvis" package provides an implementation of an interactive grammar of graphics, taking the best parts of 'ggplot2', combining them with the reactive framework of 'shiny' and drawing web graphics using 'vega'. ggvis package can be used to support interactive layers for scatter plots through the function - `layer_points()`, and `layer_lines()` for lines.
+# Combine Adop and PY_Adop into a new column
+dataset_df$Combined_Adop <- dataset_df$BY_Adop + dataset_df$FY_Adop
+#Creating a new column combining in the dataset called `Combined_Adop` and it contains the sum of `BY_Adop` and `FY_Adop` columns. 
+summary_table <- dataset_df %>%
+  select(BY_Adop, FY_Adop, Combined_Adop) %>%
+  summarise(
+    Mean_Adop = mean(BY_Adop),
+    Mean_FY_Adop = mean(FY_Adop),
+    Mean_Combined_Adop = mean(Combined_Adop),
+    Median_Adop = median(BY_Adop),
+    Median_FY_Adop = median(FY_Adop),
+    Median_Combined_Adop = median(Combined_Adop)
+  )
+# Print numerical summary
+print(summary_table)
+
+#From the above numerical summary we will get the mean, median of combined column and Amount Adopted by Council for previous Financial Year.
+#Next we will plot a graph between Combined column and Division Reference. ggvis is a dynamic and interactive package in R and it provides a grammar of graphics interface similar to ggplot2. However the appearance of plots in ggivs is customizable, it allows users to add different layers, adjust colors, scales, and other aesthetics to create more complex and informative visualizations. ggvis is particularly useful for creating interactive plots, and it integrates well with the Shiny framework for building interactive web applications with R.
+
+
+# plotting a scatter plot using ggvis functions
+gg = dataset_df %>%
+  ggvis(x = ~Combined_Adop, y = ~Division_Reference) %>%
+  layer_points(size := 50, fill := ~Combined_Adop) %>%
+  add_tooltip(function(df) {
+    data.frame(
+      Division = df$Division_Desc,
+      Service = df$Service_Desc,
+      Combined_Adop = df$Combined_Adop
+    )
+  }) %>%
+  set_options(width = 500, height = 300)
+
+# Print the ggvis plot
+print("Scatter Plot:")
+print(gg)
+
+explain(gg)
+
+
+#Interpretation: This code creates the scatter plot using `ggvis` It specifies `BY_Adop` as the x-axis variable and `FY_Adop` as the y-axis variable. The `layer_points()` function adds points to the plot, and the `add_tooltip()` function is used to define a tooltip that displays information when hovering over points. The size and fill color of the points are set based on the `Combined_Adop` column. `set_options` function is used to set various options for the ggvis plot, such as width and height.
+
+#1.  `layer_points()` - generally this function is used to add layers to the plots in ggvis. Scatter plots is created by taking few parameters like x, y, fill, shape, etc., to determine the positions and attributes of the points.
+#2.  `add_tooltip()` - this function generally provides more information about the data points when we hover on them creating a more interactive environment
+#3.  `set_options()` - this is used to set various options for the ggvis plot, such as width, height, and other display options. We can control overall appearance of the plot using this function.
+
+# Part 3 : Functions/Programming
+
+#This task is to write an R function (or set of functions) that can be used to provide a statistical analysis of interest. The function(s) should be documented by the code having comments and a working example. The output from the function should use S3 or S4 classes and an appropriate print, summary and plot methods should be developed and demonstrated with an example.
+
+
+# Defining the S3 class to perform statistical analysis of interest
+# we will define "FinancialData" class 
+financial_data_class <- function(data) {
+  structure(data, class = "FinancialData")
+}
+
+# Define print method
+print.FinancialData = function(x) {
+  cat("Statistical Analysis of Financial Data :\n")
+  #cat("Number of records: ", nrow(x), "\n")
+  cat("Unique clients: ", length(unique(x$client_name)), "\n")
+  
+  # Additional summary information
+  cat("\nSummary Statistics for Key Variables:\n")
+  cat("Mean of Amount Adopted for Budget Year is : ", mean(x$BY_Adop), "\n")
+  cat("Mean of Amount Estimated: ", mean(x$BY_EstCE), "\n")
+  cat("Mean of Amount Adopted for the previous Financial Year : ", mean(x$FY_Adop), "\n")
+  cat("Mean Amount Estimated Outturn for previous Financial Year: ", mean(x$FY_Outturn), "\n\n")
+  
+  # Quartiles for FY_Adop
+  cat("Calculating quartiles for Amount Adopted for the previous Financial Year")
+  cat("\n1st Quartile : ", quantile(x$FY_Adop, 0.25), "\n")
+  cat("2nd Quartile (Median): ", quantile(x$FY_Adop, 0.5), "\n")
+  cat("3rd Quartile : ", quantile(x$FY_Adop, 0.75), "\n")
+  
+}
+
+# Create an instance of the FinancialData class
+financial_data_instance = financial_data_class(dataset_df)
+
+# Print summary
+print(financial_data_instance)
+
+#Interpretation: From the above Statistical Analysis of the data we can get more information on the key variables. From the output we can say that there is only one client in the entire dataset. We can break down the information as: 
+#1. Mean of Amount Adopted for Budget Year: The average (mean) amount adopted for the budget year is \$591,481.5.
+
+#2.  Mean of Amount Estimated: The average (mean) amount estimated is \$588,942.9.
+
+#3.  Mean of Amount Adopted for the previous Financial Year: The average (mean) amount adopted for the previous financial year is \$587,759.7.
+
+#4.  Mean Amount Estimated Outturn for previous Financial Year: The average (mean) amount estimated outturn for the previous financial year is \$586,883.2.
+
+#Quartiles for Amount Adopted for the previous Financial Year:
+  
+#  1st Quartile: The 25th percentile or the value below which 25% of the data falls. In this case, it's \$107,400. 2nd Quartile (Median): The median, which is the middle value of the dataset. In this case, it's also \$587,759.7. 3rd Quartile: The 75th percentile or the value below which 75% of the data falls. In this case, it's again \$587,759.7.
+
+#From this we can comment on the central tendency (mean), spread (quartiles), and median of the financial data variables. The median being close to the 2nd quartile suggests that the data may not be heavily skewed. The quartiles also provide insights into the distribution of the data. Understanding the quartiles helps in assessing the spread and distribution of the data. The proximity of the median to the 3rd quartile suggests that the bulk of the data is concentrated in the higher range of adopted amounts.
+
+#plot 1
+# Define plot method
+plot.FinancialData = function(x, variable1, variable2, point_color) {
+  plot(x[[variable1]], x[[variable2]],
+       main = paste("Plot of", variable1, "vs", variable2),
+       xlab = variable1, ylab = variable2, col = point_color)
+}
+plot(financial_data_instance, variable1 = "BY_Adop", variable2 = "FY_Adop", point_color = "darkseagreen1")
+
+#Interpretation: The scatter plot shows a positive correlation between Amount Adopted by Council for previous Financial Year and Amount Adopted by Council for Budget Year. We can see that the majority of the points fall above the trend line.
+
+# Define boxplot method for FinancialData S3 class
+boxplot.FinancialData = function(x, variable, border_color = "black") {
+  boxplot(x[[variable]], main = paste("Boxplot of", variable),
+          xlab = "Statistical Analysis", ylab = variable, col = "coral4", border = border_color)
+}
+
+# Boxplot using the boxplot.FinancialData method with a different border color
+boxplot.FinancialData(financial_data_instance, variable = "FY_Adop")
