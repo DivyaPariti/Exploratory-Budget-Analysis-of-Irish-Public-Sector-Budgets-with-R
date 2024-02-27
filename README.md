@@ -1,4 +1,5 @@
-# Data Analysis and Programming in R
+# Comprehensive Analysis and Package Development for Ireland's Annual Budget Data
+
 
 ### Project Description:
 
@@ -9,6 +10,15 @@ This project involved completing a comprehensive final assignment with three mai
   - Utilized various R programming techniques to conduct data analysis, including data manipulation, graphical visualization, and statistical summaries.
   - Employed popular R packages such as `dplyr` for data manipulation and `ggplot2` for visualization, ensuring clear and insightful presentation of results. 📊
 
+![rFINALplot1](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/1c60012e-958f-4eee-bfb4-aaa8da1a8abd)
+
+![rFINALplot2](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/632729dd-dd0e-4e87-b757-bcd793a9daad)
+
+![rFINALplot3](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/d3ae48d0-5f6e-4619-bc58-bf7bc6b1f779)
+
+![rFINALplot4](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/d7246cd3-60b2-407f-b170-95574ba142ce)
+
+
 ### R Package:
   - Explored an existing R package not covered in the course, demonstrating its functionality through Quarto.
   - Clearly summarized the purpose of the selected package and showcased key functions using appropriate datasets.
@@ -18,6 +28,11 @@ This project involved completing a comprehensive final assignment with three mai
   - Developed custom R functions to provide tailored statistical analysis based on the dataset.
   - Documented the code with comments and provided working examples, incorporating S3 or S4 classes for output and appropriate print, summary, and plot methods.
   - Utilized datasets different from those used in previous parts to showcase versatility and proficiency in R programming. 💻
+
+![rFINALplot5](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/1de91a2c-5009-415c-884b-e19677c7c1c1)
+
+![rFINALplot6](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/6d6070cc-22a8-4eb2-8b4f-e163d6b0cde2)
+
 
 ### Dataset Description:
 - The dataset chosen from Ireland's Open Data Portal was Table F - Annual Budget 2021.
