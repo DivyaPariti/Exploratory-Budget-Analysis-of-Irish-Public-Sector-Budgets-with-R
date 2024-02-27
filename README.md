@@ -12,8 +12,6 @@ This project involved completing a comprehensive final assignment with three mai
 
 ![rFINALplot1](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/1c60012e-958f-4eee-bfb4-aaa8da1a8abd)
 
-![rFINALplot2](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/632729dd-dd0e-4e87-b757-bcd793a9daad)
-
 ![rFINALplot3](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/d3ae48d0-5f6e-4619-bc58-bf7bc6b1f779)
 
 ![rFINALplot4](https://github.com/DivyaPariti/Comprehensive-Analysis-and-Package-Development-for-Ireland-s-Annual-Budget-Data/assets/65856784/d7246cd3-60b2-407f-b170-95574ba142ce)
