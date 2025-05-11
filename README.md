@@ -1,4 +1,4 @@
-# Comprehensive Analysis and Package Development for Ireland's Annual Budget Data
+# Exploratory Budget Analysis of Irish Public Sector Budgets with R
 
 
 ### Project Description:
