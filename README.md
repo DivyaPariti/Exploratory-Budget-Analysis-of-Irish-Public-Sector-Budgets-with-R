@@ -1,4 +1,4 @@
-# Exploratory Budget Analysis of Irish Public Sector Budgets with R
+# Exploratory Analysis of Irish Public Sector Budgets with R
 
 
 ### Project Description:
